@@ -10,7 +10,7 @@ phases:
       - echo Pre_Build started on `date`
       - echo Running tests
       # - python setup.py test
-      - docker run --rm -ti -v ./:/app/app01 -w /app/app01 python:3.6 python setup.py test
+      - docker run --rm -t -v ./:/app/app01 -w /app/app01 python:3.6 python setup.py test
   build:
     commands:
       - echo Build started on `date`
