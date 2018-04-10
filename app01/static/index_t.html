@@ -15,4 +15,7 @@
     <p><input type=file name=file>
         <input type=submit value=Upload>
 </form>
+{% if call_counter %}
+<h6>Application call counter: {{ call_counter }}</h6>
+{% endif %}
 {% endblock %}

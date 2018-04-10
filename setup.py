@@ -13,7 +13,7 @@ setup(name='NNApp01',
       packages=['app01', 'test'],
       include_package_data=True,
       package_data={
-          'app01': ['static/index_t.html', 'resources/eggs.csv'],
+          'app01': ['static/index_t.html', 'resources/Keyword.txt'],
           'test': ['resources/*']
       },
       package_dir={

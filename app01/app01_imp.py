@@ -8,16 +8,16 @@ from flask import g
 
 logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 
+model = None
 app = Flask(__name__, template_folder='static')
 
 app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024
 app.config['DEBUG'] = False
 app.config['TESTING'] = False
+
 try:
     app.config['SECRET_KEY'] = open('/app/app01/secret_key', 'rb').read()
 except IOError as e:
-    # use 'head -c 24 /dev/urandom > secret_key' to create a key
-    # raise e
     logging.warning("SECRET_KEY was not generated. Use 'head -c 24 /dev/urandom > /app/app01/secret_key' to create a key")
     app.config['SECRET_KEY'] = 'some_secret'
 
@@ -28,19 +28,16 @@ except (RuntimeError, FileNotFoundError) as e:
 
 
 def get_model():
-    _model = getattr(g, 'app_model', None)
-    if _model is None:
-        _model = g.app_model = AppModel()
-        g.app_model.load_resources()
-    return _model
-
-
-model = LocalProxy(get_model)
+    global model
+    if model is None:
+        model = AppModel()
+        model.load_resources()
+    return model
 
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index_t.html')
+    return render_template('index_t.html', call_counter=str(get_model().call_counter))
 
 
 @app.route('/', methods=['POST'])
@@ -64,6 +61,8 @@ def upload_file():
             str_out = io.BytesIO()
             str_out.write(res.encode('utf-8'))
             str_out.seek(0)
+
+            get_model().inc_call_counter()
 
             return send_file(str_out, attachment_filename=file.filename, as_attachment=True, mimetype='text/csv')
     except RuntimeError:

@@ -45,6 +45,9 @@ class DefaultResourceTestCase(unittest.TestCase):
         Unicode
         ''')
         self.assertTrue(u'Oracle®' in res)
+        self.assertTrue(u'Unicode®' in res)
+        self.assertTrue(u'Microsoft®' in res)
+        self.assertTrue(u'SAP®' in res)
 
 
 if __name__ == "__main__":
