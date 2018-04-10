@@ -8,7 +8,6 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - echo Running tests
       - echo Building the Docker image...
       - docker build -t nnapp:$IMAGE_TAG ./
       - docker tag nnapp:$IMAGE_TAG 297541991551.dkr.ecr.eu-west-1.amazonaws.com/nnapp:$IMAGE_TAG
