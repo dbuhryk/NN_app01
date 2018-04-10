@@ -3,11 +3,16 @@ version: 0.2
 phases:
   pre_build:
     commands:
+      - echo Logging in to Amazon ECR...
       - $(aws ecr get-login --no-include-email --region eu-west-1)
   build:
     commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
       - docker build -t nnapp:$IMAGE_TAG ./
       - docker tag nnapp:$IMAGE_TAG 297541991551.dkr.ecr.eu-west-1.amazonaws.com/nnapp:$IMAGE_TAG
   post_build:
     commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
       - docker push 297541991551.dkr.ecr.eu-west-1.amazonaws.com/nnapp:$IMAGE_TAG
