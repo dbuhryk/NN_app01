@@ -37,7 +37,7 @@ def get_model():
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index_t.html', call_counter=str(get_model().call_counter))
+    return render_template('index_t.html', call_counter=str(get_model().call_counter), app_version=str(app.config.get('GIT_HASH',None)))
 
 
 @app.route('/', methods=['POST'])

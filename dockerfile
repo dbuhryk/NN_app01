@@ -10,7 +10,9 @@ RUN apk add --update \
 	build-base \
 	python3-dev \
 	g++ \
-	gcc
+	gcc \
+	ca-certificates \
+	git
 
 RUN pip3 install --upgrade pip
 
@@ -25,16 +27,23 @@ RUN cp /usr/share/zoneinfo/Europe/Prague /etc/localtime && \
     echo "Europe/Prague" > /etc/timezone
 
 #####################################
-ADD app01 /app/app01
-
-ADD test /app/test
-
-ADD setup.py /app
+ADD . /app
 
 RUN cd /app &&\
-	python3 /app/setup.py install
+	python3 /app/setup.py test &&\
+	python3 /app/setup.py install &&\
+	python3 /app/setup.py clean --all
 
-RUN rm -rf /app
+RUN rm -rf /app/*
+
+#####################################
+RUN mkdir -p  /app/app01/
+
+RUN cd /app/ && \
+    GIT_HASH=$(git rev-parse --short HEAD) && \
+    echo "GIT_HASH = '$GIT_HASH'" > /app/app01/config.cfg
+
+RUN head -c 24 /dev/urandom > /app/app01/secret_key
 
 #####################################
 COPY supervisord.conf /etc/supervisor/supervisord.conf
