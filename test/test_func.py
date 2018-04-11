@@ -30,7 +30,6 @@ class FlaskrFuncTestCase(unittest.TestCase):
             self.server.start()
             sleep(5)
 
-    @unittest.skip("Not implemented yet")
     def test_post_sample_01(self):
         with open(self.resources_path + 'oracle.txt', 'r', encoding='utf-8') as f:
             data = f.read()

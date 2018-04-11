@@ -44,6 +44,17 @@ class FlaskrTestCase(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertTrue(u'Oracle®' in response.data.decode('utf-8'))
 
+    def test_post_exception_01(self):
+        def mockup_proc(*args, **kwargs):
+            raise RuntimeError
+        with app.test_client() as client:
+            from app01.app01_imp import get_model
+            old_model_proc = get_model().replace
+            get_model().replace = mockup_proc
+            response = client.post('/', data=dict(file=(io.BytesIO(b'some_content'), 'file.txt'),))
+            self.assertEqual(response.status_code, 302)
+            get_model().replace = old_model_proc
+
     def test_test_counter_01(self):
         def parse_counter_value(s):
             _data = s.data.decode('utf-8')
@@ -54,18 +65,9 @@ class FlaskrTestCase(unittest.TestCase):
         with app.test_client() as client:
             response = client.get('/')
             counter_before = parse_counter_value(response)
-
-            with open(self.resources_path + 'oracle.txt', 'r', encoding='utf-8') as f:
-                data = f.read()
-                response = client.post('/', data=dict(
-                    file=(io.BytesIO(data.encode('utf-8')), 'file.txt'),
-                ))
-            self.assertEqual(response.status_code, 200)
-            self.assertTrue(u'Oracle®' in response.data.decode('utf-8'))
-
+            self.test_post_samplefile_01()
             response = client.get('/')
             counter_after = parse_counter_value(response)
-
             self.assertEqual(counter_before + 1, counter_after)
 
 

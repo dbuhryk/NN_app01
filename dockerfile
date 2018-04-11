@@ -18,7 +18,8 @@ RUN pip3 install --upgrade pip
 
 RUN pip3 install \
 	flask \
-	markdown
+	markdown \
+	coverage
 
 RUN rm -rf /var/cache/apk/*
 
@@ -30,7 +31,8 @@ RUN cp /usr/share/zoneinfo/Europe/Prague /etc/localtime && \
 ADD . /app
 
 RUN cd /app &&\
-	python3 /app/setup.py test &&\
+	python3 -m coverage run /app/setup.py test &&\
+	python3 -m coverage report -m &&\
 	python3 /app/setup.py install &&\
 	python3 /app/setup.py clean --all
 
