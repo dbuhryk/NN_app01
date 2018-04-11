@@ -1,4 +1,7 @@
 # coding: utf-8
+"""
+Test suite for testing Application Model
+"""
 import unittest
 import logging
 from app01.app01_model import AppModel
@@ -7,14 +10,21 @@ logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', datefmt='%m/
 
 
 class ModelTestCase(unittest.TestCase):
-    def setUp(self):
-        self.model = AppModel()
-        self.model.dictionary = dict({
+    """
+    Tests basic Model functionality with code generated dictionary
+    """
+    @classmethod
+    def setUpClass(cls):
+        cls.model = AppModel()
+        cls.model.dictionary = dict({
             u'test_string1': u'test_string2',
             u'test_string_u1': u'test_string_u2_®'
         })
 
     def test_basic_replacement_01(self):
+        """
+        Tests basic replacement functionality
+        """
         res = self.model.replace('''
         string_1
         test_string1
@@ -23,6 +33,9 @@ class ModelTestCase(unittest.TestCase):
         self.assertTrue('test_string2' in res)
 
     def test_unicode_01(self):
+        """
+        Tests basic UNICODE replacement functionality
+        """
         res = self.model.replace('''
         string_1
         test_string_u1
@@ -32,11 +45,18 @@ class ModelTestCase(unittest.TestCase):
 
 
 class DefaultResourceTestCase(unittest.TestCase):
-    def setUp(self):
-        self.model = AppModel()
-        self.model.load_resources()
+    """
+    Tests basic Model functionality with resource dictionary
+    """
+    @classmethod
+    def setUpClass(cls):
+        cls.model = AppModel()
+        cls.model.load_resources()
 
     def test_replacement_01(self):
+        """
+        Tests basic replacement functionality
+        """
         res = self.model.replace('''
         Oracle
         Unicode

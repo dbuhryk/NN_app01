@@ -19,6 +19,7 @@ RUN pip3 install --upgrade pip
 RUN pip3 install \
 	flask \
 	markdown \
+	urllib3 \
 	coverage
 
 RUN rm -rf /var/cache/apk/*

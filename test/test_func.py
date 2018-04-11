@@ -1,12 +1,16 @@
 # coding: utf-8
+"""
+Test suite for testing isolated HTTP WEB Server in a standalone process
+"""
 from app01.app01_imp import app
 from multiprocessing import Process
 from time import sleep
 import socket
 import unittest
-import requests
+from urllib3 import HTTPConnectionPool
 import os
 import logging
+import json
 
 app.config["TESTING"] = True
 logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG)
@@ -17,33 +21,52 @@ def run_server(**kwargs):
 
 
 class FlaskrFuncTestCase(unittest.TestCase):
-    def setUp(self):
-        self.path = os.path.dirname(__file__)
-        self.resources_path = self.path + "/resources/"
+    """
+    Tests requests in a standalone HTTP server process
+    """
+    @classmethod
+    def setUpClass(cls):
+        cls.path = os.path.dirname(__file__)
+        cls.resources_path = cls.path + "/resources/"
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(('localhost', 0))
-        self.port = sock.getsockname()[1]
+        cls.port = sock.getsockname()[1]
         sock.close()
         with app.app_context():
-            self.server = Process(target=run_server, kwargs={'host': 'localhost', 'port': self.port})
-            self.server.start()
+            cls.server = Process(target=run_server, kwargs={'host': 'localhost', 'port': cls.port})
+            cls.server.start()
             sleep(5)
 
-    def test_post_sample_01(self):
+    def test_form_upload_sample_01(self):
+        """
+        Single Upload Form call to isolated HTTP Server process
+        """
+        pool = HTTPConnectionPool('localhost', port=self.port, maxsize=1)
         with open(self.resources_path + 'oracle.txt', 'r', encoding='utf-8') as f:
             data = f.read()
-            response = requests.post(
-                'http://localhost:%s' % self.port,
-                allow_redirects=False,
-                files=dict(file=('file.txt', data),)
-            )
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(u'Oracle®' in response.content.decode('utf-8'))
+            response = pool.request('POST', '/', fields=dict(file=('file.txt', data),))
+            self.assertEqual(response.status, 200)
 
-    def tearDown(self):
-        self.server.terminate()
-        self.server.join()
+    def test_api_convert_sample_01(self):
+        """
+        Single API convert call to isolated HTTP Server process
+        """
+        pool = HTTPConnectionPool('localhost', port=self.port, maxsize=1)
+        with open(self.resources_path + 'oracle.txt', 'r', encoding='utf-8') as f:
+            data = f.read()
+            response = pool.request(
+                'POST',
+                '/api/convert',
+                headers={'Content-Type': 'application/json'},
+                body=json.dumps({'text': data})
+            )
+            self.assertEqual(response.status, 200)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.terminate()
+        cls.server.join()
 
 
 if __name__ == "__main__":

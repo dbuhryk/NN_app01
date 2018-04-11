@@ -1,3 +1,7 @@
+"""
+Entry point for manual server testing
+"""
+
 from app01.app01_imp import app
 
 app.config['DEBUG'] = True
